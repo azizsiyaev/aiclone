@@ -1,6 +1,6 @@
 import librosa
 import torch
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, AutoProcessor
 
 
 def transcribe(audio, model, processor, device):
@@ -13,8 +13,11 @@ def transcribe(audio, model, processor, device):
     with torch.no_grad():
         logits = model(input_values).logits
 
-    pred_ids = torch.argmax(logits, dim=-1)
-    transcript = processor.batch_decode(pred_ids)[0]
+    # pred_ids = torch.argmax(logits, dim=-1)
+    # transcript = processor.batch_decode(pred_ids)[0]
+    pred_ids = torch.argmax(logits, dim=-1)[0]
+    transcript = processor.decode(pred_ids)
+
     return transcript
 
 
@@ -24,11 +27,20 @@ def get_stt_model_processor_v1(model_checkpoint='jonatasgrosman/wav2vec2-large-x
     return model, processor
 
 
+def get_stt_model_processor_v2(model_checkpoint='facebook/mms-1b-fl102'):
+    processor = AutoProcessor.from_pretrained(model_checkpoint)
+    model = Wav2Vec2ForCTC.from_pretrained(model_checkpoint)
+    processor.tokenizer.set_target_lang('rus')
+    model.load_adapter('rus')
+    return model, processor
+
+
 def main():
     # device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
     device = torch.device('cpu')
 
-    model, processor = get_stt_model_processor_v1()
+    # model, processor = get_stt_model_processor_v1()
+    model, processor = get_stt_model_processor_v2()
 
     file_path = 'audio_data/2.wav'
     audio, sr = librosa.load(file_path, sr=None)
