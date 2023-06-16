@@ -1,9 +1,15 @@
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model_checkpoint = 'Helsinki-NLP/opus-mt-ru-en'
+tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
+model.to(device)
 
-def translate(model, tokenizer, sentence):
-    inputs = tokenizer(sentence, return_tensors='pt', padding=True)
+
+def translate(sentence):
+    inputs = tokenizer(sentence, return_tensors='pt', padding=True).to(device)
     with torch.no_grad():
         predictions = model.generate(inputs.input_ids)[0]
     prediction = tokenizer.decode(predictions, skip_special_tokens=True)
@@ -11,10 +17,6 @@ def translate(model, tokenizer, sentence):
 
 
 def main():
-    model_checkpoint = 'Helsinki-NLP/opus-mt-ru-en'
-    tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
-
     input_text = 'и так давайте приступим к самым озам питона вообще как работае наш файл вот мы ' \
                  'создали синержи точка пай здесь мы будем писать весь код он выполняется как некая ' \
                  'последовательность заклинаний вот вы в хогварде например там сказали овада кидавра ' \
@@ -26,7 +28,7 @@ def main():
                  'круглых кобочках например если мы скажему вывести пять то как нестранно он унас это сделает ' \
                  'да все отлично вывел пять'
 
-    prediction = translate(model, tokenizer, sentence=input_text)
+    prediction = translate(input_text)
     print('Predicted Transcript: ', prediction)
 
 
