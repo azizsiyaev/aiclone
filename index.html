@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voice Cloning</title>
+</head>
+<body>
+    <h1>Voice Cloning Demo</h1>
+    <h2>Choose Reference Audio</h2>
+
+    <form action="http://localhost:5000/uploader" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".wav"/>
+        <input type="submit" value="Check"/>
+    </form>
+
+    <br>
+    <audio id="referenceAudio" controls>
+        <source src="audio_data/1.wav" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <h2>Define Reference Text</h2>
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--  <title>Audio Upload</title>-->
+<!--  <style>-->
+<!--    body {-->
+<!--      font-family: Arial, sans-serif;-->
+<!--      padding: 20px;-->
+<!--    }-->
+
+<!--    h1 {-->
+<!--      margin-bottom: 20px;-->
+<!--    }-->
+
+<!--    .player-container {-->
+<!--      margin-bottom: 20px;-->
+<!--    }-->
+
+<!--    #message {-->
+<!--      margin-top: 20px;-->
+<!--      font-weight: bold;-->
+<!--    }-->
+<!--  </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--  <h1>Audio Upload</h1>-->
+<!--  <div class="player-container">-->
+<!--    <audio id="audioPlayer" controls>-->
+<!--      Your browser does not support the audio element.-->
+<!--    </audio>-->
+<!--  </div>-->
+<!--  <form id="uploadForm" enctype="multipart/form-data">-->
+<!--    <input type="file" name="audioFile" id="fileInput" />-->
+<!--    <button type="submit">Upload</button>-->
+<!--  </form>-->
+<!--  <div id="message"></div>-->
+
+<!--  <script>-->
+<!--    const audioPlayer = document.getElementById('audioPlayer');-->
+
+<!--    document.getElementById('uploadForm').addEventListener('submit', (e) => {-->
+<!--      e.preventDefault();-->
+<!--      const fileInput = document.getElementById('fileInput');-->
+<!--      const file = fileInput.files[0];-->
+<!--      const formData = new FormData();-->
+<!--      formData.append('audioFile', file);-->
+
+<!--      fetch('/upload', {-->
+<!--        method: 'POST',-->
+<!--        body: formData-->
+<!--      })-->
+<!--      .then(response => response.json())-->
+<!--      .then(data => {-->
+<!--        const messageDiv = document.getElementById('message');-->
+<!--        messageDiv.innerText = data.message;-->
+
+<!--        if (data.fileUrl) {-->
+<!--          audioPlayer.src = data.fileUrl;-->
+<!--          audioPlayer.load();-->
+<!--        }-->
+
+<!--        fileInput.value = '';-->
+<!--      })-->
+<!--      .catch(error => console.error(error));-->
+<!--    });-->
+<!--  </script>-->
+<!--</body>-->
+<!--</html>-->
