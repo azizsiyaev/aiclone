@@ -2,17 +2,15 @@
 <html lang="en">
 <head>
     <title>Voice Cloning</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
 <div id="wrapper">
       <h1>Voice Cloning</h1>
       <form id="form">
-          <h3>Reference Audio</h3>
-          <label for="input-audio">Select audio file (.wav)</label>
+          <h3>Reference Audio (.wav)</h3>
           <input type="file" accept=".wav" id="input-audio" name="input-audio">
           <h3>Text</h3>
-<!--          <label for="input-text">Write text to be narrated</label>-->
           <textarea id="input-text" name="input-text"></textarea>
           <input type="submit" id="generate-btn" name="submit" value="Generate"/>
       </form>
@@ -21,6 +19,6 @@
           <source id="output-audio-source" src=""></source>
       </audio>
 </div>
-<script src="main.js"></script>
+<script src="../static/main.js"></script>
 </body>
 </html>
