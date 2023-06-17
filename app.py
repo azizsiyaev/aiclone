@@ -1,10 +1,11 @@
-from flask import Flask, request, render_template, make_response
+from flask import Flask, request, render_template, send_file, make_response
 from flask import jsonify
 import numpy as np
 import tts
 # import stt
 # import translate
 import librosa
+import soundfile as sf
 
 app = Flask(__name__)
 
@@ -45,17 +46,10 @@ def clone_voice():
     save_bytes(audio_bytes)
     audio, sr = librosa.load('temp.wav', sr=None)
 
-    # audio = np.frombuffer(audio_bytes, dtype=np.float32)
-    # sr = 16_000
-
     generated_audio = tts.clone_voice(text, audio, sr)
+    sf.write(file='result.wav', data=generated_audio, samplerate=sr)
 
-    # save_bytes(generated_audio.tobytes(), 'result.wav')
-    # response = {
-    #     'url': 'result.wav'
-    # }
-    # return generated_audio.
-    return generated_audio.tobytes()
+    return send_file('result.wav', mimetype='audio/wav', as_attachment=True)
 
 
 @app.route('/voice_cloning/', methods=['GET', 'POST'])
@@ -69,4 +63,4 @@ def full_pipeline():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=9000, debug=False)
+    app.run(host='0.0.0.0', port=9000, debug=True)
