@@ -7,13 +7,19 @@
 <body>
 <div id="wrapper">
     <h1>Voice Cloning</h1>
+    <h3>Reference Audio (upload .wav file or record voice)</h3>
     <audio id="reference-audio" controls>
         <source id="reference-audio-source" src=""></source>
     </audio>
+
+    <div>
+        <button id="recordButton">Record</button>
+        <button id="stopButton" disabled>Stop</button>
+    </div>
+
     <form id="form">
-        <h3>Reference Audio (.wav)</h3>
         <input type="file" accept=".wav" id="input-audio" name="input-audio">
-        <h3>Text</h3>
+        <h3>Text (write a text to be narrated)</h3>
         <textarea id="input-text" name="input-text"></textarea>
         <input type="submit" id="generate-btn" name="submit" value="Generate"/>
     </form>
@@ -24,5 +30,6 @@
     </audio>
 </div>
 <script src="../static/main.js"></script>
+<script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
 </body>
 </html>

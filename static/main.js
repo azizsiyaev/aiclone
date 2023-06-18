@@ -5,37 +5,84 @@ const outputAudio = document.getElementById('output-audio');
 const outputAudioSource = document.getElementById('output-audio-source');
 const inputAudioFile = document.getElementById('input-audio');
 const loading = document.getElementById('loading');
+const recordButton = document.getElementById('recordButton');
+const stopButton = document.getElementById('stopButton');
 
 inputAudioFile.addEventListener('change', changeAudioSource);
 form.addEventListener('submit', generate);
+recordButton.addEventListener('click', startRecording);
+stopButton.addEventListener('click', stopRecording);
 
+var mediaRecorder;
+var recordedChunks = [];
+var audioSource;
 
-function changeAudioSource(e){
-    var file = event.target.files[0];
-    var url = URL.createObjectURL(file);
-    console.log(url)
-    referenceAudioSource.src = url;
-    referenceAudio.load();
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+            recordedChunks = [];
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+
+            recordButton.disabled = true;
+            stopButton.disabled = false;
+
+            mediaRecorder.addEventListener('dataavailable', function(event) {
+                recordedChunks.push(event.data);
+            });
+        })
+        .catch(function(error) {
+            console.error('Error accessing microphone:', error);
+        });
 }
 
+function stopRecording() {
+    mediaRecorder.stop();
+    mediaRecorder.addEventListener('stop', function() {
+        recordButton.disabled = false;
+        stopButton.disabled = true;
+
+        var recordedAudioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
+        const url = window.URL.createObjectURL(recordedAudioBlob);
+        referenceAudioSource.src = url;
+        referenceAudio.load();
+
+        inputAudioFile.src = url;
+        audioSource = 'mic';
+    });
+
+}
+
+function changeAudioSource(e){
+    let file = event.target.files[0];
+    let inputAudioURL;
+    inputAudioURL = URL.createObjectURL(file);
+    referenceAudioSource.src = inputAudioURL;
+    referenceAudio.load();
+    audioSource = 'file';
+}
 
 async function generate(e){
 
     loading.style.display = 'block';
-
     e.preventDefault();
+    var recordedAudioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
     const formData = new FormData(form);
+    formData.append('recorded-audio', recordedAudioBlob, 'recording.wav');
+    formData.append('source', audioSource)
 
-    let response = await fetch("http://127.0.0.1:9000/clone_voice/", {
-        method: "POST",
+    let response = await fetch('http://127.0.0.1:9000/clone_voice/', {
+        method: 'POST',
         body: formData
+
     })
         .then(response => response.blob())
         .then(blob => {
-            var url = URL.createObjectURL(blob);
+            let url;
+            url = URL.createObjectURL(blob);
             outputAudioSource.src = url;
             outputAudio.load()
-            // outputAudio.play()
+
             loading.style.display = 'none';
         });
 }

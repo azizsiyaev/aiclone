@@ -8,9 +8,11 @@ import librosa
 import soundfile as sf
 
 app = Flask(__name__)
+request_file = 'uploads/request.wav'
+response_file = 'uploads/response.wav'
 
 
-def save_bytes(audio_bytes, name='temp.wav'):
+def save_bytes(audio_bytes, name):
     with open(name, 'wb') as f:
         f.write(audio_bytes)
 
@@ -42,14 +44,23 @@ def transcribe():
 @app.route('/clone_voice/', methods=['POST'])
 def clone_voice():
     text = request.form['input-text']
-    audio_bytes = request.files['input-audio'].read()
-    save_bytes(audio_bytes)
-    audio, sr = librosa.load('temp.wav', sr=None)
+    audio_source = request.form['source']
+
+    if audio_source == 'mic':
+        audio_bytes = request.files['recorded-audio'].read()
+    elif audio_source == 'file':
+        audio_bytes = request.files['input-audio'].read()
+    else:
+        return 'File not found'
+
+    save_bytes(audio_bytes, request_file)
+    audio, sr = librosa.load(request_file, sr=None)
+    print('Received Audio: ', audio.shape, sr)
 
     generated_audio = tts.clone_voice(text, audio, sr)
-    sf.write(file='result.wav', data=generated_audio, samplerate=sr)
+    sf.write(file=response_file, data=generated_audio, samplerate=sr)
 
-    return send_file('result.wav', mimetype='audio/wav', as_attachment=True)
+    return send_file(response_file, mimetype='audio/wav', as_attachment=True)
 
 
 @app.route('/voice_cloning/', methods=['GET', 'POST'])
