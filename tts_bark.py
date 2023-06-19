@@ -55,15 +55,28 @@ def main():
     np.savez(output_path, fine_prompt=codes, coarse_prompt=codes[:2, :], semantic_prompt=semantic_tokens)
 
     text_prompt = "Hello, my name is Serpy. And, uh — and I like pizza. [laughs]"
+    # https://dl.suno-models.io/bark/models/v0/text_2.pt
+    # preload_models(
+    #     text_use_gpu=True,
+    #     text_use_small=False,
+    #     coarse_use_gpu=True,
+    #     coarse_use_small=False,
+    #     fine_use_gpu=True,
+    #     fine_use_small=False,
+    #     codec_use_gpu=True,
+    #     force_reload=False,
+    #     path="models"
+    # )
+
     preload_models(
         text_use_gpu=True,
-        text_use_small=False,
+        text_use_small=True,
         coarse_use_gpu=True,
-        coarse_use_small=False,
+        coarse_use_small=True,
         fine_use_gpu=True,
-        fine_use_small=False,
+        fine_use_small=True,
         codec_use_gpu=True,
-        force_reload=False,
+        force_reload=True,
         path="models"
     )
 
