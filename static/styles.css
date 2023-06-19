@@ -36,7 +36,7 @@ textarea {
 #loading {
     display: none;
     text-align: center;
-    margin-top: 20px;
+    /*margin-top: 20px;*/
     width: 50px;
     height: 50px;
     animation: spin 1s infinite linear, scale 2s infinite alternate;
@@ -64,3 +64,19 @@ textarea {
         transform: scale(1);
     }
 }
+
+.button {
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.choose {background-color: #008CBA;} /* Blue */
+.generate {background-color: #4CAF50;} /* Green */
+.record {background-color: #f44336;} /* Red */
+.stop {background-color: #e7e7e7; color: black;} /* Gray */

@@ -13,21 +13,27 @@
     </audio>
 
     <div>
-        <button id="recordButton">Record</button>
-        <button id="stopButton" disabled>Stop</button>
+        <button id="recordButton" class="button record">Record</button>
+        <button id="stopButton" disabled class="button stop">Stop</button>
     </div>
 
     <form id="form">
-        <input type="file" accept=".wav" id="input-audio" name="input-audio">
+        <input type="file" accept=".wav" id="input-audio" name="input-audio" class="button choose">
         <h3>Text (write a text to be narrated)</h3>
-        <textarea id="input-text" name="input-text"></textarea>
-        <input type="submit" id="generate-btn" name="submit" value="Generate"/>
+        <textarea id="input-text" name="input-text">Does the quick brown fox jump over the lazy dog?</textarea>
+        <h3>Voice Cloning Model</h3>
+        <select id="model-type" name="model-type">
+            <option value="bark">Bark</option>
+            <option value="rtvc">Real-Time-Voice-Cloning</option>
+        </select>
+        <input type="submit" id="generate-btn" name="submit" value="Generate" class="button generate"/>
     </form>
     <div id="loading"></div>
     <h3>Generated Audio</h3>
     <audio id="output-audio" controls>
         <source id="output-audio-source" src=""></source>
     </audio>
+    <p id="generation-time"></p>
 </div>
 <script src="../static/main.js"></script>
 <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>

@@ -1,11 +1,14 @@
 from flask import Flask, request, render_template, send_file, make_response
 from flask import jsonify
 import numpy as np
-import tts
+import tts_rtvc
+import tts_bark
 # import stt
 # import translate
 import librosa
+import torchaudio
 import soundfile as sf
+import time
 
 app = Flask(__name__)
 request_file = 'uploads/request.wav'
@@ -43,8 +46,11 @@ def transcribe():
 
 @app.route('/clone_voice/', methods=['POST'])
 def clone_voice():
+    start_time = time.time()
+
     text = request.form['input-text']
     audio_source = request.form['source']
+    model_type = request.form['model-type']
 
     if audio_source == 'mic':
         audio_bytes = request.files['recorded-audio'].read()
@@ -54,13 +60,23 @@ def clone_voice():
         return 'File not found'
 
     save_bytes(audio_bytes, request_file)
-    audio, sr = librosa.load(request_file, sr=None)
-    print('Received Audio: ', audio.shape, sr)
+    audio, generated_audio, sr = None, None, None
 
-    generated_audio = tts.clone_voice(text, audio, sr)
+    if model_type == 'bark':
+        audio, sr = torchaudio.load(request_file)
+        generated_audio, sr = tts_bark.clone_voice(text, audio, sr)
+    elif model_type == 'rtvc':
+        audio, sr = librosa.load(request_file, sr=None)
+        target_sr = 16_000
+        audio = librosa.resample(audio, orig_sr=sr, target_sr=target_sr)
+        sr = target_sr
+        generated_audio = tts_rtvc.clone_voice(text, audio, sr=target_sr)
+
     sf.write(file=response_file, data=generated_audio, samplerate=sr)
-
-    return send_file(response_file, mimetype='audio/wav', as_attachment=True)
+    # response = send_file(response_file, mimetype='audio/wav', as_attachment=True)
+    response = make_response(send_file(response_file, mimetype='audio/wav', as_attachment=True))
+    response.headers['time'] = str(time.time() - start_time)
+    return response
 
 
 @app.route('/voice_cloning/', methods=['GET', 'POST'])
@@ -74,4 +90,4 @@ def full_pipeline():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=9000, debug=True)
+    app.run(host='0.0.0.0', port=9000, debug=False)

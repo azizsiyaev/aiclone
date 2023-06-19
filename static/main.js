@@ -7,6 +7,7 @@ const inputAudioFile = document.getElementById('input-audio');
 const loading = document.getElementById('loading');
 const recordButton = document.getElementById('recordButton');
 const stopButton = document.getElementById('stopButton');
+const timeText = document.getElementById('generation-time');
 
 inputAudioFile.addEventListener('change', changeAudioSource);
 form.addEventListener('submit', generate);
@@ -65,24 +66,31 @@ function changeAudioSource(e){
 async function generate(e){
 
     loading.style.display = 'block';
+
+    // outputAudio.load()
     e.preventDefault();
+
     var recordedAudioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
     const formData = new FormData(form);
     formData.append('recorded-audio', recordedAudioBlob, 'recording.wav');
     formData.append('source', audioSource)
-
-    let response = await fetch('http://127.0.0.1:9000/clone_voice/', {
+    // http://127.0.0.1:9000/clone_voice/
+    let response = await fetch('/clone_voice/', {
         method: 'POST',
         body: formData
 
     })
+        .then(response => {
+            const time = response.headers.get('time')
+            timeText.innerHTML = "Generation time (s): " + time;
+            return response;
+        })
         .then(response => response.blob())
         .then(blob => {
             let url;
             url = URL.createObjectURL(blob);
             outputAudioSource.src = url;
-            outputAudio.load()
-
+            outputAudio.load();
             loading.style.display = 'none';
         });
 }
