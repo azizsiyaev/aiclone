@@ -148,6 +148,7 @@ def _download(from_hf_path, file_name, to_local_path):
     hf_hub_download(repo_id=from_hf_path, filename=file_name, local_dir=path)
     os.replace(os.path.join(path, file_name), to_local_path)
 
+
 class InferenceContext:
     def __init__(self, benchmark=False):
         # we can't expect inputs to be the same length, so disable benchmarking by default

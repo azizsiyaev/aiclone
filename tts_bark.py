@@ -10,7 +10,7 @@ hubert_manager = HuBERTManager()
 # hubert_manager.make_sure_hubert_installed()
 # hubert_manager.make_sure_tokenizer_installed()
 
-device = 'cuda' # or 'cpu'
+device = 'cpu' # or 'cpu'
 model = load_codec_model(use_gpu=True if device == 'cuda' else False)
 
 from hubert.pre_kmeans_hubert import CustomHubert

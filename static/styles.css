@@ -80,3 +80,8 @@ textarea {
 .generate {background-color: #4CAF50;} /* Green */
 .record {background-color: #f44336;} /* Red */
 .stop {background-color: #e7e7e7; color: black;} /* Gray */
+
+
+.record:disabled {
+    background-color: #e7e7e7; color: black;
+}

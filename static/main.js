@@ -14,23 +14,31 @@ form.addEventListener('submit', generate);
 recordButton.addEventListener('click', startRecording);
 stopButton.addEventListener('click', stopRecording);
 
-var mediaRecorder;
-var recordedChunks = [];
 var audioSource;
 
-function startRecording() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(function(stream) {
-            recordedChunks = [];
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start();
+URL = window.URL || window.webkitURL;
+var gumStream;
+var rec;
+var input;
+var AudioContext = window.AudioContext || window.webkitAudioContext;
+var audioContext;
+var blobToSend;
 
+
+function startRecording() {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false})
+        .then(function(stream) {
+
+            audioContext = new AudioContext();
+		    gumStream = stream;
+		    input = audioContext.createMediaStreamSource(stream);
+
+    		rec = new Recorder(input, { numChannels: 1 })
+	    	rec.record()
+            console.log("Recording started");
             recordButton.disabled = true;
             stopButton.disabled = false;
 
-            mediaRecorder.addEventListener('dataavailable', function(event) {
-                recordedChunks.push(event.data);
-            });
         })
         .catch(function(error) {
             console.error('Error accessing microphone:', error);
@@ -38,19 +46,26 @@ function startRecording() {
 }
 
 function stopRecording() {
-    mediaRecorder.stop();
-    mediaRecorder.addEventListener('stop', function() {
-        recordButton.disabled = false;
-        stopButton.disabled = true;
+    recordButton.disabled = false;
+    stopButton.disabled = true;
 
-        var recordedAudioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
-        const url = window.URL.createObjectURL(recordedAudioBlob);
-        referenceAudioSource.src = url;
-        referenceAudio.load();
+    rec.stop();
+	gumStream.getAudioTracks()[0].stop();
+	rec.exportWAV(createDownloadLink);
 
-        inputAudioFile.src = url;
-        audioSource = 'mic';
-    });
+    console.log("Recording stopped");
+}
+
+function createDownloadLink(blob) {
+
+	let url = URL.createObjectURL(blob);
+	referenceAudio.controls = true;
+	referenceAudioSource.src = url;
+    referenceAudio.load();
+    inputAudioFile.src = url;
+    audioSource = 'mic';
+
+    blobToSend = blob;
 
 }
 
@@ -67,14 +82,12 @@ async function generate(e){
 
     loading.style.display = 'block';
 
-    // outputAudio.load()
     e.preventDefault();
 
-    var recordedAudioBlob = new Blob(recordedChunks, { type: 'audio/wav' });
     const formData = new FormData(form);
-    formData.append('recorded-audio', recordedAudioBlob, 'recording.wav');
+    formData.append('recorded-audio', blobToSend, 'recording.wav');
     formData.append('source', audioSource)
-    // http://127.0.0.1:9000/clone_voice/
+
     let response = await fetch('/clone_voice/', {
         method: 'POST',
         body: formData
