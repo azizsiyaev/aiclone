@@ -79,14 +79,17 @@ function changeAudioSource(e){
 }
 
 async function generate(e){
+    console.log("Voice Generate")
 
     loading.style.display = 'block';
 
     e.preventDefault();
 
     const formData = new FormData(form);
-    formData.append('recorded-audio', blobToSend, 'recording.wav');
     formData.append('source', audioSource)
+    if (audioSource === 'mic'){
+        formData.append('recorded-audio', blobToSend, 'recording.wav');
+    }
 
     let response = await fetch('/clone_voice/', {
         method: 'POST',

@@ -1,10 +1,6 @@
 from flask import Flask, request, render_template, send_file, make_response
-from flask import jsonify
-import numpy as np
 import tts_rtvc
 import tts_bark
-# import stt
-# import translate
 import librosa
 import torchaudio
 import soundfile as sf
@@ -20,48 +16,15 @@ def save_bytes(audio_bytes, name):
         f.write(audio_bytes)
 
 
-@app.route('/translate/', methods=['POST'])
-def translate():
-    rus_text = request.form['text']
-    eng_text = translate.translate(rus_text)
-
-    response = {
-        'translation': eng_text
-    }
-    return jsonify(response)
-
-
-@app.route('/transcribe/', methods=['POST'])
-def transcribe():
-    audio_bytes = request.files['audio_data'].read()
-    audio = np.frombuffer(audio_bytes, dtype=np.float32)
-
-    transcript = stt.transcribe(audio)
-
-    response = {
-        'transcript': transcript
-    }
-    return jsonify(response)
-
-
-@app.route('/clone_voice/', methods=['POST'])
-def clone_voice():
-    start_time = time.time()
-
-    text = request.form['input-text']
+def process_request_audio(request):
     audio_source = request.form['source']
-    model_type = request.form['model-type']
-
-    if audio_source == 'mic':
-        audio_bytes = request.files['recorded-audio'].read()
-    elif audio_source == 'file':
-        audio_bytes = request.files['input-audio'].read()
-    else:
-        return 'File not found'
-
+    audio_id = 'recorded-audio' if audio_source == 'mic' else 'input-audio'
+    audio_bytes = request.files[audio_id].read()
     save_bytes(audio_bytes, request_file)
-    audio, generated_audio, sr = None, None, None
 
+
+def generate_audio(text, model_type):
+    audio, generated_audio, sr = None, None, None
     if model_type == 'bark':
         audio, sr = torchaudio.load(request_file)
         generated_audio, sr = tts_bark.clone_voice(text, audio, sr)
@@ -71,9 +34,19 @@ def clone_voice():
         audio = librosa.resample(audio, orig_sr=sr, target_sr=target_sr)
         sr = target_sr
         generated_audio = tts_rtvc.clone_voice(text, audio, sr=target_sr)
-
     sf.write(file=response_file, data=generated_audio, samplerate=sr)
-    # response = send_file(response_file, mimetype='audio/wav', as_attachment=True)
+
+
+@app.route('/clone_voice/', methods=['POST'])
+def clone_voice():
+    start_time = time.time()
+
+    text = request.form['input-text']
+    model_type = request.form['model-type']
+
+    process_request_audio(request)
+    generate_audio(text, model_type)
+
     response = make_response(send_file(response_file, mimetype='audio/wav', as_attachment=True))
     response.headers['time'] = str(time.time() - start_time)
     return response
@@ -84,10 +57,5 @@ def voice_cloning():
     return render_template('index.html')
 
 
-@app.route('/full_pipeline/', methods=['GET', 'POST'])
-def full_pipeline():
-    return render_template('index.html')
-
-
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=9000, debug=True)
+    app.run(host='0.0.0.0', port=9000, debug=False)
