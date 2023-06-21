@@ -32,7 +32,7 @@ preload_models(
         fine_use_small=True,
         codec_use_gpu=True,
         force_reload=True,
-        path="models"
+        path='models'
     )
 
 
@@ -58,8 +58,6 @@ def clone_voice(text, audio, sr):
 
 
 def main():
-    # https://github.com/serp-ai/bark-with-voice-clone/blob/main/generate.ipynb
-    # Load and pre-process the audio waveform
     pass
 
 

@@ -23,18 +23,18 @@ def process_request_audio(request):
     save_bytes(audio_bytes, request_file)
 
 
-def generate_audio(text, model_type):
+def generate_audio(text, model_type, input_file=request_file, output_file=response_file):
     audio, generated_audio, sr = None, None, None
     if model_type == 'bark':
-        audio, sr = torchaudio.load(request_file)
+        audio, sr = torchaudio.load(input_file)
         generated_audio, sr = tts_bark.clone_voice(text, audio, sr)
     elif model_type == 'rtvc':
-        audio, sr = librosa.load(request_file, sr=None)
+        audio, sr = librosa.load(input_file, sr=None)
         target_sr = 16_000
         audio = librosa.resample(audio, orig_sr=sr, target_sr=target_sr)
         sr = target_sr
         generated_audio = tts_rtvc.clone_voice(text, audio, sr=target_sr)
-    sf.write(file=response_file, data=generated_audio, samplerate=sr)
+    sf.write(file=output_file, data=generated_audio, samplerate=sr)
 
 
 @app.route('/clone_voice/', methods=['POST'])
